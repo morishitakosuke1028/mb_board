@@ -10,4 +10,5 @@ services:
     stdin_open: true
     networks:
       - sail
-    command: sh -c "sleep infinity"
+    command: npm run dev -- --host 0.0.0.0
+
