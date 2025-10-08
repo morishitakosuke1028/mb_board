@@ -12,6 +12,456 @@
         }
     ],
     "paths": {
+        "/api/admin/login": {
+            "post": {
+                "tags": [
+                    "Admin Auth"
+                ],
+                "summary": "管理者ログイン",
+                "description": "管理者がメールアドレスとパスワードでログインし、認証トークンを取得します。",
+                "operationId": "adminLogin",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "admin@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "password"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "ログイン成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "token": {
+                                            "type": "string",
+                                            "example": "1|zzzzzz"
+                                        },
+                                        "type": {
+                                            "type": "string",
+                                            "example": "admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "認証失敗",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthorized"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/logout": {
+            "post": {
+                "tags": [
+                    "Admin Auth"
+                ],
+                "summary": "管理者ログアウト",
+                "description": "現在のアクセストークンを削除してログアウトします。",
+                "operationId": "adminLogout",
+                "responses": {
+                    "200": {
+                        "description": "ログアウト成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Logged out"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/me": {
+            "get": {
+                "tags": [
+                    "Admin Auth"
+                ],
+                "summary": "ログイン中の管理者情報を取得",
+                "description": "現在のトークンに紐づく管理者情報を返します。",
+                "operationId": "getAdminInfo",
+                "responses": {
+                    "200": {
+                        "description": "管理者情報",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "name": {
+                                            "type": "string",
+                                            "example": "管理者太郎"
+                                        },
+                                        "email": {
+                                            "type": "string",
+                                            "example": "admin@example.com"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "認証エラー"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/owner/login": {
+            "post": {
+                "tags": [
+                    "Owner Auth"
+                ],
+                "summary": "オーナーログイン",
+                "description": "オーナーがメールアドレスとパスワードでログインし、認証トークンを取得します。",
+                "operationId": "ownerLogin",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "owner@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "password"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "ログイン成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "token": {
+                                            "type": "string",
+                                            "example": "1|yyyyyy"
+                                        },
+                                        "type": {
+                                            "type": "string",
+                                            "example": "owner"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "認証失敗",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthorized"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/owner/logout": {
+            "post": {
+                "tags": [
+                    "Owner Auth"
+                ],
+                "summary": "オーナーログアウト",
+                "description": "現在のアクセストークンを削除してログアウトします。",
+                "operationId": "ownerLogout",
+                "responses": {
+                    "200": {
+                        "description": "ログアウト成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Logged out"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/owner/me": {
+            "get": {
+                "tags": [
+                    "Owner Auth"
+                ],
+                "summary": "ログイン中のオーナー情報を取得",
+                "description": "現在のトークンに紐づくオーナー情報を返します。",
+                "operationId": "getOwnerInfo",
+                "responses": {
+                    "200": {
+                        "description": "オーナー情報",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "name": {
+                                            "type": "string",
+                                            "example": "テストオーナー"
+                                        },
+                                        "email": {
+                                            "type": "string",
+                                            "example": "owner@example.com"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "認証エラー"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/user/login": {
+            "post": {
+                "tags": [
+                    "User Auth"
+                ],
+                "summary": "ユーザーログイン",
+                "description": "ユーザーがメールアドレスとパスワードでログインし、認証トークンを取得します。",
+                "operationId": "userLogin",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "user@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "password"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "ログイン成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "token": {
+                                            "type": "string",
+                                            "example": "1|xxxxxx"
+                                        },
+                                        "type": {
+                                            "type": "string",
+                                            "example": "user"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "認証失敗",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthorized"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user/logout": {
+            "post": {
+                "tags": [
+                    "User Auth"
+                ],
+                "summary": "ユーザーログアウト",
+                "description": "現在のアクセストークンを削除してログアウトします。",
+                "operationId": "userLogout",
+                "responses": {
+                    "200": {
+                        "description": "ログアウト成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Logged out"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/user/me": {
+            "get": {
+                "tags": [
+                    "User Auth"
+                ],
+                "summary": "ログイン中のユーザー情報を取得",
+                "description": "現在のトークンに紐づくユーザー情報を返します。",
+                "operationId": "getUserInfo",
+                "responses": {
+                    "200": {
+                        "description": "ユーザー情報",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "name": {
+                                            "type": "string",
+                                            "example": "テストユーザー"
+                                        },
+                                        "email": {
+                                            "type": "string",
+                                            "example": "user@example.com"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "認証エラー"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/user": {
             "get": {
                 "summary": "get user index",
@@ -24,5 +474,19 @@
                 }
             }
         }
-    }
+    },
+    "tags": [
+        {
+            "name": "Admin Auth",
+            "description": "Admin Auth"
+        },
+        {
+            "name": "Owner Auth",
+            "description": "Owner Auth"
+        },
+        {
+            "name": "User Auth",
+            "description": "User Auth"
+        }
+    ]
 }
