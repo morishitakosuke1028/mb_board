@@ -14,7 +14,7 @@ Route::prefix('user')->group(function () {
 
 Route::prefix('owner')->group(function () {
     Route::post('/login', [OwnerAuthController::class, 'login']);
-    Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware('auth:owner')->group(function () {
         Route::get('/me', [OwnerAuthController::class, 'me']);
         Route::post('/logout', [OwnerAuthController::class, 'logout']);
     });
@@ -22,7 +22,7 @@ Route::prefix('owner')->group(function () {
 
 Route::prefix('admin')->group(function () {
     Route::post('/login', [AdminAuthController::class, 'login']);
-    Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware('auth:admin')->group(function () {
         Route::get('/me', [AdminAuthController::class, 'me']);
         Route::post('/logout', [AdminAuthController::class, 'logout']);
     });
