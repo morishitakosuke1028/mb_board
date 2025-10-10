@@ -4,6 +4,10 @@ use App\Http\Controllers\Auth\UserAuthController;
 use App\Http\Controllers\Auth\OwnerAuthController;
 use App\Http\Controllers\Auth\AdminAuthController;
 
+Route::options('/{any}', function () {
+    return response()->noContent();
+})->where('any', '.*');
+
 Route::prefix('user')->group(function () {
     Route::post('/login', [UserAuthController::class, 'login']);
     Route::middleware('auth:sanctum')->group(function () {
