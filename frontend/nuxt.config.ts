@@ -2,10 +2,12 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
+  css: ["@/assets/tailwindcss.scss"],
   plugins: ["@/plugins/axios"],
   modules: ['@nuxt/eslint', '@nuxtjs/tailwindcss'],
   tailwindcss: {
-    cssPath: ["~/assets/css/tailwind.css", { injectPosition: "first" }], // Default
+    cssPath: "~/assets/css/tailwind.css",
+    viewer: false,
     config: {
       content: [
         "~/components/**/*.{js,vue,ts}",
@@ -16,6 +18,8 @@ export default defineNuxtConfig({
         "~/error.vue",
       ],
     },
-    viewer: true,
+  },
+  app: {
+    pageTransition: { name: "fade", mode: "out-in" },
   },
 })

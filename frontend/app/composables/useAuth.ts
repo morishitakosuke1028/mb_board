@@ -3,6 +3,7 @@ import axios from "axios"
 export function useAuth() {
   const { $api } = useNuxtApp()
   const user = ref<any>(null)
+  const router = useRouter()
 
   // ログイン
   const login = async (
@@ -62,9 +63,12 @@ export function useAuth() {
 
       localStorage.removeItem(`${type}_token`)
       localStorage.removeItem("login_type")
-      delete $api.defaults.headers.common["Authorization"]
+
       user.value = null
+
       console.log(`${type} logout success`)
+
+      router.push("/login")
     } catch (error) {
       console.error("Logout failed:", error)
     }
