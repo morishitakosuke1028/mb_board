@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Admin;
 
@@ -48,17 +49,14 @@ class AdminAuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        $admin = Admin::where('email', $credentials['email'])->first();
-
-        if (! $admin || ! Hash::check($credentials['password'], $admin->password)) {
+        if (! $token = Auth::guard('admin')->attempt($credentials)) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        $token = $admin->createToken('admin-token', ['admin'])->plainTextToken;
-
         return response()->json([
-            'token' => $token,
-            'type' => 'admin',
+            'access_token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => Auth::guard('admin')->factory()->getTTL() * 60,
         ]);
     }
 
@@ -79,10 +77,10 @@ class AdminAuthController extends Controller
      *     )
      * )
      */
-    public function logout(Request $request)
+    public function logout()
     {
-        $request->user()->currentAccessToken()->delete();
-        return response()->json(['message' => 'Logged out']);
+        Auth::guard('admin')->logout();
+        return response()->json(['message' => 'ログアウトしました']);
     }
 
     /**
@@ -108,15 +106,8 @@ class AdminAuthController extends Controller
      *     )
      * )
      */
-    public function me(Request $request)
+    public function me()
     {
-        // return response()->json($request->user());
-        $admin = auth('admin')->user();
-
-        if (! $admin) {
-            return response()->json(['message' => 'Unauthenticated.'], 401);
-        }
-
-        return response()->json($admin);
+        return response()->json(Auth::guard('admin')->user());
     }
 }

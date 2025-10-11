@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 
@@ -43,22 +44,16 @@ class UserAuthController extends Controller
      */
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => 'required|string|email',
-            'password' => 'required|string',
-        ]);
+        $credentials = $request->only('email', 'password');
 
-        $user = User::where('email', $credentials['email'])->first();
-
-        if (! $user || ! Hash::check($credentials['password'], $user->password)) {
+        if (! $token = Auth::guard('user')->attempt($credentials)) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        $token = $user->createToken('user-token', ['user'])->plainTextToken;
-
         return response()->json([
-            'token' => $token,
-            'type' => 'user',
+            'access_token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => Auth::guard('user')->factory()->getTTL() * 60,
         ]);
     }
 
@@ -79,10 +74,10 @@ class UserAuthController extends Controller
      *     )
      * )
      */
-    public function logout(Request $request)
+    public function logout()
     {
-        $request->user()->currentAccessToken()->delete();
-        return response()->json(['message' => 'Logged out']);
+        Auth::guard('user')->logout();
+        return response()->json(['message' => 'ログアウトしました']);
     }
 
     /**
@@ -108,8 +103,8 @@ class UserAuthController extends Controller
      *     )
      * )
      */
-    public function me(Request $request)
+    public function me()
     {
-        return response()->json($request->user());
+        return response()->json(Auth::guard('user')->user());
     }
 }

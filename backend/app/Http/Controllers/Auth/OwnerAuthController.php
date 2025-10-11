@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Owner;
 
@@ -48,17 +49,14 @@ class OwnerAuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        $owner = Owner::where('email', $credentials['email'])->first();
-
-        if (! $owner || ! Hash::check($credentials['password'], $owner->password)) {
+        if (! $token = Auth::guard('owner')->attempt($credentials)) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        $token = $owner->createToken('owner-token', ['owner'])->plainTextToken;
-
         return response()->json([
-            'token' => $token,
-            'type' => 'owner',
+            'access_token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => Auth::guard('owner')->factory()->getTTL() * 60,
         ]);
     }
 
@@ -79,10 +77,10 @@ class OwnerAuthController extends Controller
      *     )
      * )
      */
-    public function logout(Request $request)
+    public function logout()
     {
-        $request->user()->currentAccessToken()->delete();
-        return response()->json(['message' => 'Logged out']);
+        Auth::guard('owner')->logout();
+        return response()->json(['message' => 'ログアウトしました']);
     }
 
     /**
@@ -108,8 +106,8 @@ class OwnerAuthController extends Controller
      *     )
      * )
      */
-    public function me(Request $request)
+    public function me()
     {
-        return response()->json($request->user());
+        return response()->json(Auth::guard('owner')->user());
     }
 }

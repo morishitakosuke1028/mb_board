@@ -10,7 +10,7 @@ Route::options('/{any}', function () {
 
 Route::prefix('user')->group(function () {
     Route::post('/login', [UserAuthController::class, 'login']);
-    Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware('auth:user')->group(function () {
         Route::get('/me', [UserAuthController::class, 'me']);
         Route::post('/logout', [UserAuthController::class, 'logout']);
     });
