@@ -7,6 +7,7 @@ use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\Admin;
 use App\Models\Owner;
+use App\Models\Category;
 
 class DatabaseSeeder extends Seeder
 {
@@ -19,6 +20,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             AdminSeeder::class,
             OwnerSeeder::class,
+            CategorySeeder::class,
         ]);
     }
 }
