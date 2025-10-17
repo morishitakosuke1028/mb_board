@@ -12,4 +12,9 @@ class Category extends Model
     protected $fillable = [
         'name',
     ];
+
+    public static function createCategory(array $data): self
+    {
+        return self::create($data);
+    }
 }

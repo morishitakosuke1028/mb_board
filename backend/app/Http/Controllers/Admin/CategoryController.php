@@ -8,30 +8,16 @@ use App\Http\Requests\Admin\UpdateCategoryRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use App\Models\Category;
 
 class CategoryController extends Controller
 {
     public function index()
     {
         try {
-            \Log::info('Admin CategoryController@index called', [
-                'token' => request()->bearerToken(),
-                'auth_user' => auth('admin')->user(),
-            ]);
-
             $admin = auth('admin')->user();
-
-            if (! $admin) {
-                \Log::warning('Unauthorized access attempt to categories');
-                return response()->json(['message' => 'Unauthorized'], 401);
-            }
-
             $categories = \App\Models\Category::orderBy('id', 'desc')->get();
-
-            \Log::info('Categories fetched successfully', [
-                'count' => count($categories),
-                'admin' => $admin->email ?? 'N/A',
-            ]);
 
             return response()->json([
                 'data' => $categories,
@@ -46,9 +32,16 @@ class CategoryController extends Controller
         }
     }
 
-    public function store(StoreCategoryRequest $request)
+    public function store(StoreCategoryRequest $request): JsonResponse
     {
+        $category = Category::createCategory(
+            $request->only(['name'])
+        );
 
+        return response()->json([
+            'data' => $category,
+            'message' => 'カテゴリを登録しました。',
+        ], 201);
     }
 
     public function edit(category $category)
