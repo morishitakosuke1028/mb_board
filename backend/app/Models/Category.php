@@ -17,4 +17,10 @@ class Category extends Model
     {
         return self::create($data);
     }
+
+    public static function updateCategory(self $category, array $data): self
+    {
+        $category->update($data);
+        return $category->refresh();
+    }
 }

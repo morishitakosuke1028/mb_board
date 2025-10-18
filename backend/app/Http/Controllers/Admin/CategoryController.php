@@ -51,9 +51,14 @@ class CategoryController extends Controller
         ]);
     }
 
-    public function update(UpdateCategoryRequest $request)
+    public function update(UpdateCategoryRequest $request, Category $category)
     {
+        $updatedCategory = Category::updateCategory($category, $request->only(['name']));
 
+        return response()->json([
+            'data' => $updatedCategory,
+            'message' => 'カテゴリを更新しました。',
+        ]);
     }
 
     public function destroy($id)

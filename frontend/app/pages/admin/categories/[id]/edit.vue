@@ -60,13 +60,13 @@ onMounted(async () => {
 const updateCategory = async () => {
   try {
     const token = localStorage.getItem("admin_token")
+
     await $api.put(
       `/admin/categories/${route.params.id}`,
       { name: category.value.name },
       { headers: { Authorization: `Bearer ${token}` } }
     )
-    alert("更新しました")
-    navigateTo("/admin/categories")
+    await navigateTo("/admin/categories")
   } catch (err: any) {
     console.error("更新失敗:", err)
     error.value = err.response?.data?.message || "更新に失敗しました"
