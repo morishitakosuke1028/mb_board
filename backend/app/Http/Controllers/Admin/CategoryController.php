@@ -17,7 +17,7 @@ class CategoryController extends Controller
     {
         try {
             $admin = auth('admin')->user();
-            $categories = \App\Models\Category::orderBy('id', 'desc')->get();
+            $categories = Category::orderBy('id', 'desc')->get();
 
             return response()->json([
                 'data' => $categories,
@@ -44,9 +44,11 @@ class CategoryController extends Controller
         ], 201);
     }
 
-    public function edit(category $category)
+    public function edit(Category $category): JsonResponse
     {
-
+        return response()->json([
+            'data' => $category,
+        ]);
     }
 
     public function update(UpdateCategoryRequest $request)

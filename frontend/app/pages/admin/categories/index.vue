@@ -20,6 +20,12 @@
           <td class="border p-2">{{ formatDate(cat.created_at) }}</td>
           <td class="border p-2">
             <button
+              @click="goToEditPage(cat.id)"
+              class="text-blue-600 hover:text-blue-800 font-semibold"
+            >
+              編集
+            </button>
+            <button
               @click="deleteCategory(cat.id)"
               class="text-red-600 hover:text-red-800 font-semibold"
             >
@@ -98,7 +104,10 @@ const addCategory = async () => {
   }
 }
 
-// カテゴリ削除
+const goToEditPage = (id: number) => {
+  navigateTo(`/admin/categories/${id}/edit`)
+}
+
 const deleteCategory = async (id: number) => {
   if (!confirm("本当に削除しますか？")) return
   try {
