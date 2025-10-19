@@ -63,6 +63,23 @@ class CategoryController extends Controller
 
     public function destroy($id)
     {
+        try {
+            $category = Category::findOrFail($id);
+            $category->delete();
 
+            return response()->json([
+                'message' => 'カテゴリを削除しました。',
+            ], 200);
+
+        } catch (\Exception $e) {
+            \Log::error('カテゴリ削除失敗', [
+                'id' => $id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'message' => '削除に失敗しました。',
+            ], 500);
+        }
     }
 }
