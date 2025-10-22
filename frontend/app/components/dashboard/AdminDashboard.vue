@@ -17,7 +17,14 @@
         <p class="text-sm text-gray-600">カテゴリの一覧・追加・編集を行います。</p>
       </NuxtLink>
 
-      <!-- 他の管理メニューの例 -->
+      <NuxtLink
+        to="/admin/owners"
+        class="block bg-white border border-blue-300 rounded-lg p-4 hover:bg-blue-100 transition"
+      >
+        <h3 class="text-lg font-semibold text-blue-600 mb-1">オーナー管理</h3>
+        <p class="text-sm text-gray-600">オーナー情報の確認・削除を行います。</p>
+      </NuxtLink>
+
       <NuxtLink
         to="/admin/users"
         class="block bg-white border border-blue-300 rounded-lg p-4 hover:bg-blue-100 transition"
