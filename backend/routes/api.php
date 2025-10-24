@@ -48,4 +48,11 @@ Route::prefix('admin')->middleware(['auth:admin'])->group(function () {
     Route::get('/categories/{category}/edit', [CategoryController::class, 'edit']);
     Route::put('/categories/{category}', [CategoryController::class, 'update']);
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
+
+    Route::get('/courses', [CourseController::class, 'index']);
+    Route::post('/courses/create', [CourseController::class, 'create']);
+    Route::post('/courses', [CourseController::class, 'store']);
+    Route::get('/courses/{course}/edit', [CourseController::class, 'edit']);
+    Route::put('/courses/{course}', [CourseController::class, 'update']);
+    Route::delete('/courses/{course}', [CourseController::class, 'destroy']);
 });
