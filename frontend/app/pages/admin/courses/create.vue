@@ -235,9 +235,30 @@ const handleFileChange = (event: Event) => {
 }
 
 const submit = async () => {
-  sessionStorage.setItem('course_form', JSON.stringify(form.value))
+  const formCopy: any = { ...form.value }
 
-  // 確認ページへ
+  // FileをBase64に変換
+  if (form.value.course_image instanceof File) {
+    formCopy.course_image_base64 = await convertFileToBase64(form.value.course_image)
+    formCopy.course_image_name = form.value.course_image.name
+  }
+
+  // Fileオブジェクト自体は削除して保存
+  delete formCopy.course_image
+
+  // JSONとしてsessionStorageに保存
+  sessionStorage.setItem('course_form', JSON.stringify(formCopy))
+
   await navigateTo('/admin/courses/confirm')
+}
+
+// Base64変換ユーティリティ関数
+const convertFileToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.readAsDataURL(file)
+    reader.onload = () => resolve(reader.result as string)
+    reader.onerror = reject
+  })
 }
 </script>

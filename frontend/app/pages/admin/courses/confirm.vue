@@ -103,9 +103,9 @@ onMounted(() => {
   if (saved) {
     form.value = JSON.parse(saved)
 
-    // course_image が Blob ではなく string (nullやURL) の場合もありうる
-    if (form.value.course_image && typeof form.value.course_image === 'object') {
-      previewUrl.value = URL.createObjectURL(form.value.course_image)
+    // Base64 がある場合はプレビュー表示用に設定
+    if (form.value.course_image_base64) {
+      previewUrl.value = form.value.course_image_base64
     }
   }
 })
