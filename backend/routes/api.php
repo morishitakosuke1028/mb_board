@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\UserAuthController;
 use App\Http\Controllers\Auth\OwnerAuthController;
 use App\Http\Controllers\Auth\AdminAuthController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\OwnerController;
 use App\Http\Controllers\Admin\UserController;
 
@@ -50,7 +51,6 @@ Route::prefix('admin')->middleware(['auth:admin'])->group(function () {
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
 
     Route::get('/courses', [CourseController::class, 'index']);
-    Route::post('/courses/create', [CourseController::class, 'create']);
     Route::post('/courses', [CourseController::class, 'store']);
     Route::get('/courses/{course}/edit', [CourseController::class, 'edit']);
     Route::put('/courses/{course}', [CourseController::class, 'update']);

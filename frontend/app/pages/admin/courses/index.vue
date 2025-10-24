@@ -5,7 +5,7 @@
     <!-- 追加ボタン -->
     <div class="flex justify-end mb-4">
       <NuxtLink
-        to="/admin/courses/create"
+        :to="{ path: '/admin/courses/create', query: { reset: 'true' } }"
         class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
       >
         新規登録
