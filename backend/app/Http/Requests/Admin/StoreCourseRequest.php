@@ -25,7 +25,7 @@ class StoreCourseRequest extends FormRequest
             'owner_id' => ['required', 'exists:owners,id'],
             'course_title' => ['required', 'string', 'max:255'],
             'content' => ['required', 'string'],
-            'course_image' => ['nullable', 'string', 'max:255'],
+            'course_image' => ['nullable', 'file', 'image', 'mimes:jpeg,jpg,png', 'max:3072'],
             'instructor' => ['required', 'string', 'max:255'],
             'instructor_title' => ['nullable', 'string', 'max:255'],
             'date_time' => ['required', 'date'],

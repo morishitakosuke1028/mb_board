@@ -29,6 +29,17 @@ class Course extends Model
         'status',
     ];
 
+    public static function createWithImage(array $data, ?UploadedFile $image): self
+    {
+        // 画像がある場合のみ保存
+        if ($image instanceof UploadedFile) {
+            $filename = Str::uuid()->toString() . '.' . $image->getClientOriginalExtension();
+            $path = $image->storeAs('courses', $filename, 'public');
+            $data['course_image'] = Storage::url($path);
+        }
+        return self::create($data);
+    }
+
     public function owner()
     {
         return $this->belongsTo(Owner::class);

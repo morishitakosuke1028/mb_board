@@ -61,10 +61,17 @@
 
           <button
             @click="submit"
-            class="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700 transition"
+            :disabled="isSubmitting"
+            class="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700 transition disabled:bg-gray-400"
           >
-            この内容で登録する
+            {{ isSubmitting ? '送信中...' : 'この内容で登録する' }}
           </button>
+        </div>
+
+        <!-- デバッグ情報 -->
+        <div v-if="debugInfo" class="mt-8 p-4 bg-gray-100 rounded text-xs">
+          <h3 class="font-bold mb-2">デバッグ情報:</h3>
+          <pre class="whitespace-pre-wrap">{{ debugInfo }}</pre>
         </div>
       </div>
     </div>
@@ -73,9 +80,14 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import type { FetchError } from 'ofetch'
+
+const { $api } = useNuxtApp()
 
 const form = ref<any>(null)
 const previewUrl = ref<string | null>(null)
+const isSubmitting = ref(false)
+const debugInfo = ref('')
 
 const labels: Record<string, string> = {
   owner_id: '運営者ID',
@@ -121,10 +133,22 @@ const backToEdit = () => {
 
 // 登録送信
 const submit = async () => {
-  if (!form.value) return
+  if (!form.value || isSubmitting.value) return
 
+  isSubmitting.value = true
+  debugInfo.value = ''
+  
+  const token = localStorage.getItem('admin_token')
+  
+  // $apiのbaseURLを確認
+  console.log('🔍 $api.defaults:', $api.defaults)
+  console.log('🔍 $api.defaults.baseURL:', $api.defaults?.baseURL)
+  
   const formData = new FormData()
+
+  // FormDataに追加
   for (const key in form.value) {
+    if (key === 'course_image_base64') continue
     const value = form.value[key]
     if (value !== null && value !== undefined) {
       formData.append(key, value)
@@ -132,16 +156,68 @@ const submit = async () => {
   }
 
   try {
-    await $fetch('/api/admin/courses', {
+    const endpoint = '/admin/courses'
+    console.log('📍 エンドポイント:', endpoint)
+    console.log('📦 FormData 内容:')
+    for (const [key, val] of formData.entries()) {
+      if (val instanceof File) {
+        console.log('   ', key, `[File: ${val.name}, ${val.size} bytes]`)
+      } else {
+        console.log('   ', key, val)
+      }
+    }
+
+    // FormDataの場合はネイティブfetchを使用
+    // axiosはFormDataを正しく扱えない場合がある
+    const baseURL = $api.defaults?.baseURL || 'http://localhost:8000'
+    const fullUrl = `${baseURL}${endpoint}`
+    
+    console.log('📤 送信先URL:', fullUrl)
+
+    const response = await fetch(fullUrl, {
       method: 'POST',
       body: formData,
+      headers: { Authorization: `Bearer ${token ?? ''}`, Accept: 'application/json' },
     })
 
-    sessionStorage.removeItem('course_form')
-    navigateTo('/admin/courses/complete')
-  } catch (err) {
-    console.error('登録エラー:', err)
-    alert('登録に失敗しました。')
+    console.log('📡 ステータス:', response.status)
+
+    const ct = response.headers.get('content-type') || ''
+    let payload: any
+    if (ct.includes('application/json')) {
+      payload = await response.json()
+    } else {
+      payload = await response.text()
+    }
+
+    if (!response.ok) {
+      console.error('❌ サーバーエラー:', payload)
+      throw new Error(
+        typeof payload === 'string' ? payload.slice(0, 200) : (payload?.message || `HTTP ${response.status}`)
+      )
+    }
+
+    console.log('✅ 登録成功:', payload)
+
+    
+    navigateTo('/admin/courses')
+  } catch (err: any) {
+    console.error('❌ エラー発生')
+    console.error('エラーオブジェクト:', err)
+    console.error('レスポンス:', err.response)
+    console.error('メッセージ:', err.message)
+
+    // デバッグ情報に追加
+    debugInfo.value += '\n❌ エラー詳細:\n'
+    debugInfo.value += `メッセージ: ${err?.message || '不明'}\n`
+    
+    if (err?.response?.data) {
+      debugInfo.value += `データ: ${JSON.stringify(err.response.data, null, 2)}\n`
+    }
+
+    alert(`登録に失敗しました: ${err?.response?.data?.message || err?.message || '不明なエラー'}`)
+  } finally {
+    isSubmitting.value = false
   }
 }
 </script>
