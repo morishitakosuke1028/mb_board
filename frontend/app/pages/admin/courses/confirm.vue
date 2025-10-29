@@ -67,12 +67,6 @@
             {{ isSubmitting ? '送信中...' : 'この内容で登録する' }}
           </button>
         </div>
-
-        <!-- デバッグ情報 -->
-        <div v-if="debugInfo" class="mt-8 p-4 bg-gray-100 rounded text-xs">
-          <h3 class="font-bold mb-2">デバッグ情報:</h3>
-          <pre class="whitespace-pre-wrap">{{ debugInfo }}</pre>
-        </div>
       </div>
     </div>
   </section>
@@ -139,11 +133,6 @@ const submit = async () => {
   debugInfo.value = ''
   
   const token = localStorage.getItem('admin_token')
-  
-  // $apiのbaseURLを確認
-  console.log('🔍 $api.defaults:', $api.defaults)
-  console.log('🔍 $api.defaults.baseURL:', $api.defaults?.baseURL)
-  
   const formData = new FormData()
 
   // FormDataに追加
@@ -157,8 +146,6 @@ const submit = async () => {
 
   try {
     const endpoint = '/admin/courses'
-    console.log('📍 エンドポイント:', endpoint)
-    console.log('📦 FormData 内容:')
     for (const [key, val] of formData.entries()) {
       if (val instanceof File) {
         console.log('   ', key, `[File: ${val.name}, ${val.size} bytes]`)
@@ -172,15 +159,11 @@ const submit = async () => {
     const baseURL = $api.defaults?.baseURL || 'http://localhost:8000'
     const fullUrl = `${baseURL}${endpoint}`
     
-    console.log('📤 送信先URL:', fullUrl)
-
     const response = await fetch(fullUrl, {
       method: 'POST',
       body: formData,
       headers: { Authorization: `Bearer ${token ?? ''}`, Accept: 'application/json' },
     })
-
-    console.log('📡 ステータス:', response.status)
 
     const ct = response.headers.get('content-type') || ''
     let payload: any
@@ -196,9 +179,6 @@ const submit = async () => {
         typeof payload === 'string' ? payload.slice(0, 200) : (payload?.message || `HTTP ${response.status}`)
       )
     }
-
-    console.log('✅ 登録成功:', payload)
-
     
     navigateTo('/admin/courses')
   } catch (err: any) {
