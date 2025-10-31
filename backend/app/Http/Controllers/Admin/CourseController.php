@@ -60,13 +60,25 @@ class CourseController extends Controller
         ]);
     }
 
-    public function destroy(Course $course)
+    public function destroy($id)
     {
-        $course->delete();
+        try {
+            $course = Course::findOrFail($id);
+            $course->delete();
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Course deleted successfully'
-        ]);
+            return response()->json([
+                'message' => '講座情報を削除しました。',
+            ], 200);
+
+        } catch (\Exception $e) {
+            \Log::error('講座情報削除失敗', [
+                'id' => $id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'message' => '削除に失敗しました。',
+            ], 500);
+        }
     }
 }
