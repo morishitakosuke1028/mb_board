@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class Course extends Model
 {
@@ -31,12 +34,12 @@ class Course extends Model
 
     public static function createWithImage(array $data, ?UploadedFile $image): self
     {
-        // 画像がある場合のみ保存
         if ($image instanceof UploadedFile) {
             $filename = Str::uuid()->toString() . '.' . $image->getClientOriginalExtension();
             $path = $image->storeAs('courses', $filename, 'public');
             $data['course_image'] = Storage::url($path);
         }
+
         return self::create($data);
     }
 

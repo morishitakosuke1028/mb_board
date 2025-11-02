@@ -41,6 +41,14 @@
                     {{ form[key] || '地図なし' }}
                   </div>
                 </template>
+                <template v-else-if="key === 'status'">
+                  <div v-if="form[key] == 1">
+                    公開
+                  </div>
+                  <div v-else>
+                    非公開
+                  </div>
+                </template>
 
                 <!-- 通常テキスト -->
                 <template v-else>
@@ -74,7 +82,6 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import type { FetchError } from 'ofetch'
 
 const { $api } = useNuxtApp()
 
@@ -103,29 +110,43 @@ const labels: Record<string, string> = {
   status: 'ステータス',
 }
 
-// ページ読み込み時にデータ復元
-onMounted(() => {
-  const saved = sessionStorage.getItem('course_form')
-  if (saved) {
-    form.value = JSON.parse(saved)
-
-    // Base64 がある場合はプレビュー表示用に設定
-    if (form.value.course_image_base64) {
-      previewUrl.value = form.value.course_image_base64
-    }
-  }
-})
-
 const isGoogleMapUrl = (url: string) => {
   return typeof url === 'string' && url.startsWith('https://www.google.com/maps/embed')
 }
 
-// 戻るボタン
+onMounted(() => {
+  const saved = sessionStorage.getItem('course_form')
+  if (saved) {
+    const parsed = JSON.parse(saved)
+    form.value = parsed
+
+    if (form.value.course_image_base64) {
+      previewUrl.value = form.value.course_image_base64
+
+      try {
+        const arr = form.value.course_image_base64.split(',')
+        const mime = arr[0].match(/:(.*?);/)[1]
+        const bstr = atob(arr[1])
+        let n = bstr.length
+        const u8arr = new Uint8Array(n)
+        while (n--) u8arr[n] = bstr.charCodeAt(n)
+        const file = new File(
+          [u8arr],
+          form.value.course_image_name || 'upload.png',
+          { type: mime }
+        )
+        form.value.course_image = file
+      } catch (e) {
+        console.warn('Base64 → File変換失敗', e)
+      }
+    }
+  }
+})
+
 const backToEdit = () => {
   navigateTo('/admin/courses/create')
 }
 
-// 登録送信
 const submit = async () => {
   if (!form.value || isSubmitting.value) return
 
@@ -135,9 +156,8 @@ const submit = async () => {
   const token = localStorage.getItem('admin_token')
   const formData = new FormData()
 
-  // FormDataに追加
   for (const key in form.value) {
-    if (key === 'course_image_base64') continue
+    if (key === 'course_image_base64' || key === 'course_image_name') continue
     const value = form.value[key]
     if (value !== null && value !== undefined) {
       formData.append(key, value)
@@ -146,23 +166,24 @@ const submit = async () => {
 
   try {
     const endpoint = '/admin/courses'
+    const baseURL = $api.defaults?.baseURL || 'http://localhost:8000'
+    const fullUrl = `${baseURL}${endpoint}`
+
     for (const [key, val] of formData.entries()) {
       if (val instanceof File) {
-        console.log('   ', key, `[File: ${val.name}, ${val.size} bytes]`)
+        console.log(`  ${key}: [File: ${val.name}, ${val.size} bytes]`)
       } else {
-        console.log('   ', key, val)
+        console.log(`  ${key}: ${val}`)
       }
     }
 
-    // FormDataの場合はネイティブfetchを使用
-    // axiosはFormDataを正しく扱えない場合がある
-    const baseURL = $api.defaults?.baseURL || 'http://localhost:8000'
-    const fullUrl = `${baseURL}${endpoint}`
-    
     const response = await fetch(fullUrl, {
       method: 'POST',
       body: formData,
-      headers: { Authorization: `Bearer ${token ?? ''}`, Accept: 'application/json' },
+      headers: {
+        Authorization: `Bearer ${token ?? ''}`,
+        Accept: 'application/json',
+      },
     })
 
     const ct = response.headers.get('content-type') || ''
@@ -172,30 +193,10 @@ const submit = async () => {
     } else {
       payload = await response.text()
     }
-
-    if (!response.ok) {
-      console.error('❌ サーバーエラー:', payload)
-      throw new Error(
-        typeof payload === 'string' ? payload.slice(0, 200) : (payload?.message || `HTTP ${response.status}`)
-      )
-    }
-    
+    sessionStorage.removeItem('course_form')
     navigateTo('/admin/courses')
   } catch (err: any) {
-    console.error('❌ エラー発生')
-    console.error('エラーオブジェクト:', err)
-    console.error('レスポンス:', err.response)
-    console.error('メッセージ:', err.message)
-
-    // デバッグ情報に追加
-    debugInfo.value += '\n❌ エラー詳細:\n'
-    debugInfo.value += `メッセージ: ${err?.message || '不明'}\n`
-    
-    if (err?.response?.data) {
-      debugInfo.value += `データ: ${JSON.stringify(err.response.data, null, 2)}\n`
-    }
-
-    alert(`登録に失敗しました: ${err?.response?.data?.message || err?.message || '不明なエラー'}`)
+    alert(`登録に失敗しました}`)
   } finally {
     isSubmitting.value = false
   }

@@ -140,7 +140,6 @@ import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useAuth } from "@/composables/useAuth";
 
-
 const route = useRoute();
 const { $api } = useNuxtApp();
 const { user } = useAuth();
@@ -153,6 +152,8 @@ const form = ref<{
   course_title: string
   content: string
   course_image: File | null
+  course_image_base64?: string
+  course_image_name?: string
   instructor: string
   instructor_title: string
   date_time: string
@@ -184,9 +185,10 @@ const form = ref<{
   email: '',
   map: '',
   status: '1',
-})
+});
 
 const owners = ref<any[]>([]);
+
 onMounted(async () => {
   if (route.query.reset !== "true") {
     const saved = sessionStorage.getItem('course_form');
@@ -195,7 +197,6 @@ onMounted(async () => {
       Object.assign(form.value, savedForm);
     }
   } else {
-    // reset=true の場合はフォームを初期化して既存データ削除
     sessionStorage.removeItem('course_form');
   }
 
@@ -219,46 +220,31 @@ onMounted(async () => {
 });
 
 const handleFileChange = (event: Event) => {
-  const input = event.target as HTMLInputElement | null
+  const input = event.target as HTMLInputElement | null;
   if (!input || !input.files || input.files.length === 0) {
-    form.value.course_image = null
-    return
+    form.value.course_image = null;
+    form.value.course_image_base64 = undefined;
+    form.value.course_image_name = undefined;
+    return;
   }
 
-  // undefined の可能性を明示的に排除
-  const file = input.files[0]
+  const file = input.files[0];
   if (file) {
-    form.value.course_image = file
-  } else {
-    form.value.course_image = null
+    form.value.course_image = file;
+    form.value.course_image_name = file.name;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      form.value.course_image_base64 = reader.result as string;
+    };
+    reader.readAsDataURL(file);
   }
-}
+};
 
 const submit = async () => {
-  const formCopy: any = { ...form.value }
-
-  // FileをBase64に変換
-  if (form.value.course_image instanceof File) {
-    formCopy.course_image_base64 = await convertFileToBase64(form.value.course_image)
-    formCopy.course_image_name = form.value.course_image.name
-  }
-
-  // Fileオブジェクト自体は削除して保存
-  delete formCopy.course_image
-
-  // JSONとしてsessionStorageに保存
-  sessionStorage.setItem('course_form', JSON.stringify(formCopy))
-
-  await navigateTo('/admin/courses/confirm')
-}
-
-// Base64変換ユーティリティ関数
-const convertFileToBase64 = (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.readAsDataURL(file)
-    reader.onload = () => resolve(reader.result as string)
-    reader.onerror = reject
-  })
-}
+  const formCopy: any = { ...form.value };
+  delete formCopy.course_image;
+  sessionStorage.setItem("course_form", JSON.stringify(formCopy));
+  await navigateTo("/admin/courses/confirm");
+};
 </script>
