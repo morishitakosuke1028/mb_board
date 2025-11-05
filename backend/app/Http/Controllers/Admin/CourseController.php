@@ -25,10 +25,6 @@ class CourseController extends Controller
 
     public function store(StoreCourseRequest $request)
     {
-        Log::info('=== リクエスト受信 ===');
-        Log::info('$request->all():', $request->all());
-        Log::info('$request->file():', ['course_image' => $request->file('course_image')]);
-        Log::info('Content-Type:', [$request->header('Content-Type')]);
         $data = $request->validated();
         if (!empty($data['date_time'])) {
             $data['date_time'] = str_replace('T', ' ', $data['date_time']);
@@ -43,8 +39,10 @@ class CourseController extends Controller
 
     public function edit(Course $course)
     {
+        if ($course->course_image) {
+            $course->course_image = asset($course->course_image);
+        }
         return response()->json([
-            'status' => 'success',
             'data' => $course
         ]);
     }
