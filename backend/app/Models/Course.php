@@ -43,6 +43,23 @@ class Course extends Model
         return self::create($data);
     }
 
+    public function updateWithImage(array $data, ?UploadedFile $image = null): void
+    {
+        if ($image instanceof UploadedFile) {
+            if (!empty($this->course_image)) {
+                $oldPath = str_replace('/storage/', '', $this->course_image);
+                if (Storage::disk('public')->exists($oldPath)) {
+                    Storage::disk('public')->delete($oldPath);
+                }
+            }
+
+            $filename = Str::uuid()->toString() . '.' . $image->getClientOriginalExtension();
+            $path = $image->storeAs('courses', $filename, 'public');
+            $data['course_image'] = Storage::url($path);
+        }
+        $this->update($data);
+    }
+
     public function owner()
     {
         return $this->belongsTo(Owner::class);

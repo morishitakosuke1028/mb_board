@@ -10,7 +10,7 @@
       <div v-if="loading" class="text-center text-gray-600">読み込み中...</div>
       <div v-else-if="error" class="text-center text-red-600">{{ error }}</div>
 
-      <form v-else @submit.prevent="submit">
+      <form v-else @submit.prevent="updateCourse">
         <div class="lg:w-1/2 md:w-2/3 mx-auto">
           <div class="flex flex-wrap -m-2">
             <div class="p-2 w-1/2">
@@ -144,9 +144,10 @@
         <div class="p-2 w-full">
           <button
             type="submit"
+            :disabled="isSubmitting"
             class="flex mx-auto text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg"
           >
-            確認画面へ
+            {{ isSubmitting ? '更新中...' : '更新する' }}
           </button>
         </div>
       </form>
@@ -163,81 +164,40 @@ const route = useRoute()
 const { $api } = useNuxtApp()
 const { user } = useAuth()
 
-const loading = ref(true)
-const error = ref('')
 const courseId = route.params.id as string
-
-const form = ref<{
-  owner_id: string
-  course_title: string
-  content: string
-  course_image: File | null
-  course_image_base64?: string
-  course_image_name?: string
-  instructor: string
-  instructor_title: string
-  date_time: string
-  participation_fee: string
-  additional_fee: string
-  capacity: string
-  venue: string
-  venue_zip: string
-  venue_address: string
-  tel: string
-  email: string
-  map: string
-  status: string
-}>({
-  owner_id: '',
-  course_title: '',
-  content: '',
-  course_image: null,
-  instructor: '',
-  instructor_title: '',
-  date_time: '',
-  participation_fee: '',
-  additional_fee: '',
-  capacity: '',
-  venue: '',
-  venue_zip: '',
-  venue_address: '',
-  tel: '',
-  email: '',
-  map: '',
-  status: '1',
-})
-
+const form = ref<any>({})
 const owners = ref<any[]>([])
+const error = ref('')
+const loading = ref(true)
+const isSubmitting = ref(false)
 
 /**
- * 初期化処理
+ * 初期データ取得
  */
 onMounted(async () => {
   try {
     const token = localStorage.getItem('admin_token')
     if (!token) return navigateTo('/login')
 
-    // 運営者一覧
+    // 運営者一覧取得
     const ownerRes = await $api.get('/admin/owners', {
       headers: { Authorization: `Bearer ${token}` },
     })
     owners.value = ownerRes.data.data
 
-    // 講座詳細取得
+    // 講座情報取得
     const res = await $api.get(`/admin/courses/${courseId}/edit`, {
       headers: { Authorization: `Bearer ${token}` },
     })
+    form.value = res.data.data || {}
 
-    const data = res.data.data
-    Object.assign(form.value, data)
-
-    // ✅ Laravel 側が asset() or Storage::url() を返している場合
-    if (data.course_image) {
-      form.value.course_image_base64 = data.course_image // URLそのまま表示
-      form.value.course_image_name = data.course_image.split('/').pop()
+    // 画像URLを保持（プレビュー表示用）
+    if (form.value.course_image) {
+      form.value.course_image_base64 = form.value.course_image
+      form.value.course_image_name = form.value.course_image.split('/').pop()
     }
   } catch (err: any) {
-    console.error('データ取得エラー:', err)
+    console.error('データ取得失敗:', err)
     error.value = '講座情報の取得に失敗しました。'
   } finally {
     loading.value = false
@@ -245,17 +205,9 @@ onMounted(async () => {
 })
 
 /**
- * ファイル変更処理
+ * ファイル選択変更処理
  */
 const handleFileChange = (event: Event) => {
-  // const input = event.target as HTMLInputElement | null
-  // if (!input || !input.files?.length) {
-  //   form.value.course_image = null
-  //   form.value.course_image_base64 = undefined
-  //   form.value.course_image_name = undefined
-  //   return
-  // }
-
   const input = event.target as HTMLInputElement | null
   const file = input?.files?.[0] ?? null
 
@@ -274,13 +226,53 @@ const handleFileChange = (event: Event) => {
 }
 
 /**
- * 確認画面へ遷移
+ * 更新処理
  */
-const submit = async () => {
-  const formCopy: any = { ...form.value }
-  delete formCopy.course_image
-  formCopy.id = courseId
-  sessionStorage.setItem('course_form', JSON.stringify(formCopy))
-  await navigateTo(`/admin/courses/${courseId}/confirm`)
+const updateCourse = async () => {
+  if (isSubmitting.value) return
+  isSubmitting.value = true
+  error.value = ''
+
+  try {
+    const token = localStorage.getItem('admin_token')
+    if (!token) return navigateTo('/login')
+
+    const formData = new FormData()
+    for (const key in form.value) {
+      const value = form.value[key]
+      if (
+        key === 'course_image_base64' ||
+        key === 'course_image_name' ||
+        value === undefined ||
+        value === null
+      )
+        continue
+
+      formData.append(key, value)
+    }
+
+    // LaravelでPUTを扱うための_hidden _method
+    formData.append('_method', 'PUT')
+
+    // APIリクエスト
+    const res = await $api.post(`/admin/courses/${courseId}`, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+
+    console.log('✅ 更新成功:', res.data)
+    alert('講座情報を更新しました。')
+    await navigateTo('/admin/courses')
+  } catch (err: any) {
+    console.error('❌ 更新失敗:', err)
+    error.value =
+      err.response?.data?.message ||
+      err.response?.data?.errors ||
+      '更新に失敗しました。'
+  } finally {
+    isSubmitting.value = false
+  }
 }
 </script>
