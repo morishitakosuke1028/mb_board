@@ -72,6 +72,15 @@
           </tr>
         </tbody>
       </table>
+      <div class="p-2 w-full">
+          <button
+            type="button"
+            @click="goBack"
+            class="flex mx-auto text-white bg-gray-500 border-0 py-2 px-8 focus:outline-none hover:bg-gray-600 rounded text-lg"
+          >
+            戻る
+          </button>
+      </div>
     </div>
   </div>
 </template>
@@ -130,5 +139,9 @@ const formatDate = (val: string) => {
     hour: '2-digit',
     minute: '2-digit',
   })
+}
+
+const goBack = () => {
+  navigateTo('/dashboard')
 }
 </script>

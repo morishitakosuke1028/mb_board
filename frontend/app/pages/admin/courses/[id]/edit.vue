@@ -151,6 +151,15 @@
           </button>
         </div>
       </form>
+      <div class="p-2 w-full">
+          <button
+            type="button"
+            @click="goBack"
+            class="flex mx-auto text-white bg-gray-500 border-0 py-2 px-8 focus:outline-none hover:bg-gray-600 rounded text-lg"
+          >
+            戻る
+          </button>
+      </div>
     </div>
   </section>
 </template>
@@ -238,41 +247,53 @@ const updateCourse = async () => {
     if (!token) return navigateTo('/login')
 
     const formData = new FormData()
-    for (const key in form.value) {
-      const value = form.value[key]
+
+    if (form.value.course_image instanceof File) {
+      formData.append('course_image', form.value.course_image as Blob)
+    }
+
+    for (const [key, value] of Object.entries(form.value)) {
       if (
+        key === 'course_image' ||
         key === 'course_image_base64' ||
         key === 'course_image_name' ||
         value === undefined ||
         value === null
-      )
+      ) {
         continue
+      }
 
-      formData.append(key, value)
+      if (value instanceof File) {
+        formData.append(key, value)
+      } else if (typeof value === 'number') {
+        formData.append(key, value.toString())
+      } else {
+        formData.append(key, String(value))
+      }
     }
-
-    // LaravelでPUTを扱うための_hidden _method
     formData.append('_method', 'PUT')
 
-    // APIリクエスト
     const res = await $api.post(`/admin/courses/${courseId}`, formData, {
       headers: {
         Authorization: `Bearer ${token}`,
+        Accept: 'application/json',
         'Content-Type': 'multipart/form-data',
       },
     })
 
-    console.log('✅ 更新成功:', res.data)
-    alert('講座情報を更新しました。')
     await navigateTo('/admin/courses')
   } catch (err: any) {
-    console.error('❌ 更新失敗:', err)
     error.value =
       err.response?.data?.message ||
-      err.response?.data?.errors ||
-      '更新に失敗しました。'
+      (err.response?.data?.errors
+        ? JSON.stringify(err.response.data.errors)
+        : '更新に失敗しました。')
   } finally {
     isSubmitting.value = false
   }
+}
+
+const goBack = () => {
+  navigateTo('/admin/courses')
 }
 </script>
