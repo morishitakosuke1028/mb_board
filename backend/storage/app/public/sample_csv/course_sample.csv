@@ -1,0 +1,3 @@
+﻿owner_id,course_title,content,instructor,instructor_title,date_time,participation_fee,additional_fee,capacity,venue,venue_zip,venue_address,tel,email,map,status
+1,Laravel入門,初心者向け講座,山田太郎,講師,2025-11-10 10:00:00,2000円,,30,東京会場,100-0001,東京都千代田区1-1-1,09012345678,test@example.com,https://map.example.com,1
+2,Vue実践,中級者向け講座,鈴木花子,講師,2025-12-01 13:00:00,2500円,,25,大阪会場,530-0001,大阪市北区1-1-1,08098765432,vue@example.com,https://map2.example.com,1

@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\OwnerAuthController;
 use App\Http\Controllers\Auth\AdminAuthController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CourseController;
+use App\Http\Controllers\Admin\CourseImportController;
 use App\Http\Controllers\Admin\OwnerController;
 use App\Http\Controllers\Admin\UserController;
 
@@ -55,4 +56,7 @@ Route::prefix('admin')->middleware(['auth:admin'])->group(function () {
     Route::get('/courses/{course}/edit', [CourseController::class, 'edit']);
     Route::put('/courses/{course}', [CourseController::class, 'update']);
     Route::delete('/courses/{course}', [CourseController::class, 'destroy']);
+
+    Route::get('/import/sample', [CourseImportController::class, 'downloadSample']);
+    Route::post('/import', [CourseImportController::class, 'import']);
 });

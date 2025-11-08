@@ -1,2 +1,4 @@
 *
+!/sample_csv
+!/sample_csv/course_sample.csv
 !.gitignore

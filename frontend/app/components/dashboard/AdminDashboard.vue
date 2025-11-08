@@ -39,6 +39,13 @@
         <h3 class="text-lg font-semibold text-blue-600 mb-1">講座管理</h3>
         <p class="text-sm text-gray-600">講座情報の登録・編集・削除を行います。</p>
       </NuxtLink>
+      <NuxtLink
+        to="/admin/import"
+        class="block bg-white border border-blue-300 rounded-lg p-4 hover:bg-blue-100 transition"
+      >
+        <h3 class="text-lg font-semibold text-blue-600 mb-1">講座CSV一括登録</h3>
+        <p class="text-sm text-gray-600">講座情報の一括登録を行います。</p>
+      </NuxtLink>
     </div>
   </div>
 </template>
