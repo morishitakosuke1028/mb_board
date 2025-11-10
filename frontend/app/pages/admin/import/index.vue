@@ -16,9 +16,10 @@
       <!-- CSVアップロードフォーム -->
       <form @submit.prevent="submitImport" class="space-y-4">
         <input
+          ref="fileRef"
+          id="file"
           type="file"
           accept=".csv"
-          @change="handleFileChange"
           class="border p-2 rounded w-full max-w-md mx-auto"
         />
 
@@ -43,18 +44,10 @@
 import { ref } from 'vue'
 const { $api } = useNuxtApp()
 
-const csvFile = ref<File | null>(null)
+const fileRef = ref<HTMLInputElement | null>(null)
 const isSubmitting = ref(false)
 const message = ref('')
 const error = ref('')
-
-/**
- * ファイル選択
- */
-const handleFileChange = (e: Event) => {
-  const input = e.target as HTMLInputElement
-  csvFile.value = input.files?.[0] ?? null
-}
 
 /**
  * サンプルCSVダウンロード
@@ -85,34 +78,56 @@ const downloadSample = async () => {
  * CSVインポート送信
  */
 const submitImport = async () => {
-  if (!csvFile.value) {
-    alert('CSVファイルを選択してください')
-    return
-  }
-
   isSubmitting.value = true
   message.value = ''
   error.value = ''
 
-  const formData = new FormData()
-  formData.append('csv_file', csvFile.value)
-
   try {
-    const token = localStorage.getItem('admin_token')
-    const res = await fetch(`${$api.defaults.baseURL}/admin/courses/import`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}` },
-      body: formData,
+    const input = fileRef.value
+    const file = input?.files?.[0]
+    if (!file) {
+      isSubmitting.value = false
+      return alert('CSVファイルを選択してください')
+    }
+
+    const fd = new FormData()
+    // ← フィールド名は **csv_file**（Laravel側と一致）
+    fd.append('csv_file', file, file.name)
+
+    // デバッグ: 実際に積まれているか確認
+    for (const [k, v] of fd.entries()) {
+      console.log('FD:', k, v instanceof File ? `${v.name} (${v.type}, ${v.size}B)` : v)
+    }
+
+    const token = localStorage.getItem('admin_token') || ''
+
+    // ✅ 重要: Content-Type は **指定しない**
+    const res = await $api.post('/admin/import', fd, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/json',
+      },
+      // 万一 $api のデフォで application/json が付く環境なら念のため外す
+      transformRequest: [(data, headers) => {
+        if (headers) {
+          delete headers['Content-Type']
+          delete headers['content-type']
+        }
+        return data
+      }],
+      maxBodyLength: Infinity, // 念のため
     })
 
-    const data = await res.json()
-    if (!res.ok) throw new Error(data.message || 'インポートに失敗しました')
-
-    message.value = data.message || 'インポート完了しました。'
+    message.value = res.data?.message || 'インポート完了しました。'
   } catch (err: any) {
-    error.value = err.message
+    console.error('❌ インポート失敗:', err)
+    error.value =
+      err?.response?.data?.message ||
+      (err?.response?.data?.errors ? JSON.stringify(err.response.data.errors) : 'インポートに失敗しました')
   } finally {
     isSubmitting.value = false
   }
 }
+
+
 </script>

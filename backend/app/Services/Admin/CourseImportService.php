@@ -10,9 +10,6 @@ use Exception;
 
 class CourseImportService
 {
-    /**
-     * CSVを読み込み講座をDBに登録する
-     */
     public function import(string $filePath): int
     {
         try {
