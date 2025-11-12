@@ -33,20 +33,30 @@ class CourseImportController extends Controller
 
     public function import(CourseImportRequest $request)
     {
-        Log::info('RAW dump', [
-            'contentType' => $request->header('Content-Type'),
-            'hasFile' => $request->hasFile('csv_file'),
-            'allKeys' => array_keys($request->all()),
-            'files' => array_keys($request->allFiles()),
-        ]);
-
         if (!$request->hasFile('csv_file')) {
             return response()->json(['message' => 'CSVファイルを選択してください。'], 422);
         }
 
         $file = $request->file('csv_file');
         $path = $file->store('imports', 'local');
+        $fullPath = storage_path('app/' . $path);
 
-        return response()->json(['message' => "CSV受信成功: {$path}"]);
+        try {
+            $count = $this->service->import($fullPath);
+        } catch (\Throwable $e) {
+            Log::error('❌ CSVインポート失敗', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return response()->json([
+                'message' => 'CSVインポート中にエラーが発生しました。',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+
+        return response()->json([
+            'message' => "{$count} 件の講座をインポートしました。",
+            'count' => $count,
+        ], 200);
     }
 }
