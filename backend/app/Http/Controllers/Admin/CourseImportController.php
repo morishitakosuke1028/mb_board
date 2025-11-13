@@ -38,8 +38,8 @@ class CourseImportController extends Controller
         }
 
         $file = $request->file('csv_file');
-        $path = $file->store('imports', 'local');
-        $fullPath = storage_path('app/' . $path);
+        $path = $file->store('imports', 'private');
+        $fullPath = storage_path('app/private/' . $path);
 
         try {
             $count = $this->service->import($fullPath);
@@ -53,6 +53,12 @@ class CourseImportController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+
+        Log::info('CSV保存先', [
+            'path' => $path,
+            'fullPath' => $fullPath,
+            'exists' => file_exists($fullPath),
+        ]);
 
         return response()->json([
             'message' => "{$count} 件の講座をインポートしました。",
