@@ -54,12 +54,6 @@ class CourseImportController extends Controller
             ], 500);
         }
 
-        Log::info('CSV保存先', [
-            'path' => $path,
-            'fullPath' => $fullPath,
-            'exists' => file_exists($fullPath),
-        ]);
-
         return response()->json([
             'message' => "{$count} 件の講座をインポートしました。",
             'count' => $count,

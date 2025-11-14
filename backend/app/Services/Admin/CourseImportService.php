@@ -19,24 +19,7 @@ class CourseImportService
 
             $count = 0;
             foreach ($records as $record) {
-                Course::create([
-                    'owner_id' => $record['owner_id'] ?? null,
-                    'course_title' => $record['course_title'] ?? '',
-                    'content' => $record['content'] ?? '',
-                    'instructor' => $record['instructor'] ?? '',
-                    'instructor_title' => $record['instructor_title'] ?? '',
-                    'date_time' => $record['date_time'] ?? now(),
-                    'participation_fee' => $record['participation_fee'] ?? '',
-                    'additional_fee' => $record['additional_fee'] ?? '',
-                    'capacity' => (int)($record['capacity'] ?? 0),
-                    'venue' => $record['venue'] ?? '',
-                    'venue_zip' => $record['venue_zip'] ?? '',
-                    'venue_address' => $record['venue_address'] ?? '',
-                    'tel' => $record['tel'] ?? '',
-                    'email' => $record['email'] ?? '',
-                    'map' => $record['map'] ?? '',
-                    'status' => $record['status'] ?? '1',
-                ]);
+                Course::createFromCsvRecord($record);
                 $count++;
             }
 
