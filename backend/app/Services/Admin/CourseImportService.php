@@ -3,6 +3,7 @@
 namespace App\Services\Admin;
 
 use App\Models\Course;
+use App\Validators\CourseCsvValidator;
 use League\Csv\Reader;
 use League\Csv\Statement;
 use Illuminate\Support\Facades\Log;
@@ -18,12 +19,31 @@ class CourseImportService
             $records = (new Statement())->process($csv);
 
             $count = 0;
+            $line = 2; // 1行目はヘッダーなので、データは2行目から開始
+
+            $errors = [];
+
             foreach ($records as $record) {
-                Course::createFromCsvRecord($record);
+                $validator = CourseCsvValidator::validate($record, $line);
+
+                if ($validator->fails()) {
+                    foreach ($validator->errors()->all() as $msg) {
+                        $errors[] = "{$msg}";
+                    }
+                } else {
+                    Course::createFromCsvRecord($record);
+                }
+
+                $line++;
                 $count++;
             }
 
+            if (!empty($errors)) {
+                throw new Exception(implode("\n", $errors));
+            }
+
             return $count;
+
         } catch (Exception $e) {
             Log::error('CSVインポートエラー: ' . $e->getMessage());
             throw $e;

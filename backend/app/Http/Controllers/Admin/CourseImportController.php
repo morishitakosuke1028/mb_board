@@ -43,20 +43,16 @@ class CourseImportController extends Controller
 
         try {
             $count = $this->service->import($fullPath);
-        } catch (\Throwable $e) {
-            Log::error('❌ CSVインポート失敗', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
-            return response()->json([
-                'message' => 'CSVインポート中にエラーが発生しました。',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
 
-        return response()->json([
-            'message' => "{$count} 件の講座をインポートしました。",
-            'count' => $count,
-        ], 200);
+            return response()->json([
+                'message' => "{$count} 件の講座をインポートしました。",
+                'count' => $count,
+            ], 200);
+        } catch (\Throwable $e) {
+
+            return response()->json([
+                'message' => $e->getMessage(),  // ← フロント表示用
+            ], 422);
+        }
     }
 }
