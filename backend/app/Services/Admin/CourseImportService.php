@@ -14,7 +14,7 @@ class CourseImportService
     public function import(string $filePath): int
     {
         try {
-            $csv = Reader::createFromPath($filePath, 'r');
+            $csv = Reader::createFromFileObject(new \SplFileObject($filePath));
             $csv->setHeaderOffset(0);
             $records = (new Statement())->process($csv);
 
@@ -24,6 +24,7 @@ class CourseImportService
             $errors = [];
 
             foreach ($records as $record) {
+                $record = (array)$record;
                 $validator = CourseCsvValidator::validate($record, $line);
 
                 if ($validator->fails()) {
