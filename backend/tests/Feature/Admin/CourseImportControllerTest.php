@@ -12,7 +12,7 @@ class CourseImportControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    private string $endpoint = '/api/admin/course/import';
+    private string $endpoint = '/api/admin/import';
 
     #[Test]
     public function it_imports_csv_successfully()
