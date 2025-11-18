@@ -14,7 +14,7 @@ class CourseImportRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'csv_file' => ['required', 'file', 'mimes:csv,txt', 'max:5120']
+            'csv_file' => ['required', 'file', 'extensions:csv', 'max:5120']
         ];
     }
 
