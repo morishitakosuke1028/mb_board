@@ -20,6 +20,9 @@
 </template>
 
 <script setup lang="ts">
+definePageMeta({
+  middleware: ['auth']
+})
 import { useAuth } from "@/composables/useAuth"
 import AdminDashboard from "@/components/dashboard/AdminDashboard.vue"
 import UserDashboard from "@/components/dashboard/UserDashboard.vue"
