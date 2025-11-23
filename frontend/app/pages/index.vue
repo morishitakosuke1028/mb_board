@@ -27,6 +27,9 @@
       </div>
     </section>
 
+    <!-- ★ 新着講座5件スライダー -->
+    <CourseSlider />
+
     <!-- フッター -->
     <FooterMain />
   </div>

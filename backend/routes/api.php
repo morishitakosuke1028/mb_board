@@ -4,10 +4,16 @@ use App\Http\Controllers\Auth\UserAuthController;
 use App\Http\Controllers\Auth\OwnerAuthController;
 use App\Http\Controllers\Auth\AdminAuthController;
 use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\CourseController;
+use App\Http\Controllers\Admin\CourseController as AdminCourseController;
 use App\Http\Controllers\Admin\CourseImportController;
 use App\Http\Controllers\Admin\OwnerController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Public\CourseController as PublicCourseController;
+
+
+Route::get('/courses/latest', [PublicCourseController::class, 'latest'])->name('courses.latest');
+Route::get('/courses', [PublicCourseController::class, 'index'])->name('courses.index');
+Route::get('/courses/{id}', [PublicCourseController::class, 'show'])->name('courses.show');
 
 Route::options('/{any}', function () {
     return response()->noContent();
@@ -37,8 +43,6 @@ Route::prefix('admin')->group(function () {
     });
 });
 
-
-
 Route::prefix('admin')->middleware(['auth:admin'])->group(function () {
     Route::get('/owners', [OwnerController::class, 'index']);
     Route::delete('/owners/{owner}', [OwnerController::class, 'destroy']);
@@ -51,11 +55,11 @@ Route::prefix('admin')->middleware(['auth:admin'])->group(function () {
     Route::put('/categories/{category}', [CategoryController::class, 'update']);
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
 
-    Route::get('/courses', [CourseController::class, 'index']);
-    Route::post('/courses', [CourseController::class, 'store']);
-    Route::get('/courses/{course}/edit', [CourseController::class, 'edit']);
-    Route::put('/courses/{course}', [CourseController::class, 'update']);
-    Route::delete('/courses/{course}', [CourseController::class, 'destroy']);
+    Route::get('/courses', [AdminCourseController::class, 'index']);
+    Route::post('/courses', [AdminCourseController::class, 'store']);
+    Route::get('/courses/{course}/edit', [AdminCourseController::class, 'edit']);
+    Route::put('/courses/{course}', [AdminCourseController::class, 'update']);
+    Route::delete('/courses/{course}', [AdminCourseController::class, 'destroy']);
 
     Route::get('/import/sample', [CourseImportController::class, 'downloadSample']);
     Route::post('/import', [CourseImportController::class, 'import']);

@@ -4,7 +4,7 @@
 
       <!-- ロゴ -->
       <NuxtLink to="/" class="logo">
-        まNAVI
+        自治体ボード
       </NuxtLink>
 
       <!-- PCナビ -->
