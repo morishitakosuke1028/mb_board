@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\CourseController as AdminCourseController;
 use App\Http\Controllers\Admin\CourseImportController;
 use App\Http\Controllers\Admin\OwnerController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\User\AttendanceController as UserAttendanceController;
 use App\Http\Controllers\Public\CourseController as PublicCourseController;
 
 
@@ -24,6 +25,9 @@ Route::prefix('user')->group(function () {
     Route::middleware('auth:user')->group(function () {
         Route::get('/me', [UserAuthController::class, 'me']);
         Route::post('/logout', [UserAuthController::class, 'logout']);
+
+        Route::get('/attendances', [UserAttendanceController::class, 'index']);
+        Route::delete('/attendances/{attendances}', [UserAttendanceController::class, 'destroy']);
     });
 });
 
