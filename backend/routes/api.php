@@ -28,6 +28,9 @@ Route::prefix('user')->group(function () {
 
         Route::get('/attendances', [UserAttendanceController::class, 'index']);
         Route::delete('/attendances/{attendances}', [UserAttendanceController::class, 'destroy']);
+
+        Route::post('/attendances', [UserAttendanceController::class, 'store']);
+        Route::get('/attendances/check/{courseId}', [UserAttendanceController::class, 'check']);
     });
 });
 

@@ -24,6 +24,25 @@
         </p>
 
         <p class="content" v-if="course.content" v-html="course.content"></p>
+
+         <!-- ここから参加ボタン -->
+        <div class="attend-wrapper">
+          <button
+            v-if="isLoggedIn && !isAttending"
+            @click="attend"
+            class="attend-btn"
+          >
+            講座に参加する
+          </button>
+
+          <p v-if="isLoggedIn && isAttending" class="attended-text">
+            ✔ 参加済みです
+          </p>
+
+          <NuxtLink v-if="!isLoggedIn" to="/login" class="login-link text-blue-500">
+            ログインして参加する
+          </NuxtLink>
+        </div>
       </div>
 
       <NuxtLink to="/courses" class="back">
@@ -44,11 +63,25 @@ const course = ref<any>(null)
 const loading = ref(true)
 const error = ref("")
 
+const isLoggedIn = ref(false)
+const isAttending = ref(false)
+
 onMounted(async () => {
+  const token = localStorage.getItem("user_token")
+  isLoggedIn.value = !!token
+
   try {
     const id = route.params.id
     const res = await $api.get(`/courses/${id}`)
     course.value = res.data
+
+    if (isLoggedIn.value) {
+      // 参加済みチェック
+      const check = await $api.get(`/user/attendances/check/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      isAttending.value = check.data.attending
+    }
   } catch (e) {
     error.value = "講座の取得に失敗しました。"
     console.error(e)
@@ -56,6 +89,25 @@ onMounted(async () => {
     loading.value = false
   }
 })
+
+// 参加処理
+async function attend() {
+  try {
+    const token = localStorage.getItem("user_token")
+    const courseId = route.params.id
+
+    await $api.post(
+      "/user/attendances",
+      { course_id: courseId, status: "参加" },
+      { headers: { Authorization: `Bearer ${token}` } }
+    )
+
+    isAttending.value = true
+  } catch (e) {
+    console.error("参加に失敗:", e)
+    alert("参加処理に失敗しました")
+  }
+}
 
 function formatDate(dateStr: string) {
   const d = new Date(dateStr)
