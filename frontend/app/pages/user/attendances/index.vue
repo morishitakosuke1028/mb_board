@@ -22,6 +22,9 @@
           詳しく見る →
         </NuxtLink>
 
+        <button @click="cancel(item.id)" class="cancel-btn">
+          参加をキャンセルする
+        </button>
       </div>
     </div>
     <div>
@@ -62,6 +65,29 @@ onMounted(async () => {
     loading.value = false
   }
 })
+
+// キャンセル処理
+async function cancel(attendanceId: number) {
+  if (!confirm("本当にキャンセルしますか？")) return;
+
+  try {
+    const token = localStorage.getItem("user_token")
+
+    await $api.delete(`/user/attendances/${attendanceId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+
+    // ローカル一覧から削除
+    attendances.value = attendances.value.filter(
+      (a) => a.id !== attendanceId
+    )
+
+    alert("キャンセルしました")
+  } catch (e) {
+    console.error(e)
+    alert("キャンセルに失敗しました")
+  }
+}
 
 function formatDate(dateStr: string) {
   const d = new Date(dateStr)

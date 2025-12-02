@@ -75,7 +75,7 @@ class AttendanceController extends Controller
     }
 
     /**
-     * ★（既存）キャンセル
+     * キャンセル
      */
     public function destroy(Request $request, Attendance $attendance)
     {
