@@ -32,6 +32,16 @@
           講座一覧
       </NuxtLink>
     </div>
+
+    <div class="p-2 w-full">
+          <button
+            type="button"
+            @click="goBack"
+            class="flex mx-auto text-white bg-gray-500 border-0 py-2 px-8 focus:outline-none hover:bg-gray-600 rounded text-lg"
+          >
+            戻る
+          </button>
+      </div>
   </div>
 </template>
 
@@ -92,6 +102,10 @@ async function cancel(attendanceId: number) {
 function formatDate(dateStr: string) {
   const d = new Date(dateStr)
   return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`
+}
+
+const goBack = () => {
+  navigateTo('/dashboard')
 }
 </script>
 
