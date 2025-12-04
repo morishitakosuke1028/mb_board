@@ -1,24 +1,29 @@
 <template>
-  <div class="course-list-page">
-    <h1 class="page-title">講座・教室一覧</h1>
+  <div>
+    <HeaderMain />
 
-    <div v-if="loading" class="loading">読み込み中...</div>
-
-    <div v-else class="list-grid">
-      <div v-for="course in courses" :key="course.id" class="course-card">
-        <h3 class="title">{{ course.course_title }}</h3>
-
-        <p class="date">
-          開催日：{{ formatDate(course.date_time) }}
-        </p>
-
-        <p class="venue">場所：{{ course.venue }}</p>
-
-        <NuxtLink :to="`/courses/${course.id}`" class="more">
-          詳しく見る →
-        </NuxtLink>
+    <div class="course-list-page">
+      <h1 class="page-title">講座・教室一覧</h1>
+  
+      <div v-if="loading" class="loading">読み込み中...</div>
+  
+      <div v-else class="list-grid">
+        <div v-for="course in courses" :key="course.id" class="course-card">
+          <h3 class="title">{{ course.course_title }}</h3>
+  
+          <p class="date">
+            開催日：{{ formatDate(course.date_time) }}
+          </p>
+  
+          <p class="venue">場所：{{ course.venue }}</p>
+  
+          <NuxtLink :to="`/courses/${course.id}`" class="more">
+            詳しく見る →
+          </NuxtLink>
+        </div>
       </div>
     </div>
+    <FooterMain />
   </div>
 </template>
 
