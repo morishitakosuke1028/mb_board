@@ -11,6 +11,20 @@
       <nav class="nav pc-nav">
         <NuxtLink to="/" class="nav-item">トップ</NuxtLink>
         <NuxtLink to="/courses" class="nav-item">講座・教室</NuxtLink>
+        <NuxtLink
+          v-if="!isLoggedIn"
+          to="/login"
+          class="nav-item login-btn"
+        >
+          ログイン
+        </NuxtLink>
+        <NuxtLink
+          v-else
+          to="/user/attendances"
+          class="nav-item login-btn"
+        >
+          マイページ
+        </NuxtLink>
       </nav>
 
       <!-- ハンバーガー -->
@@ -27,14 +41,38 @@
       <div v-if="open" class="drawer">
         <NuxtLink to="/" class="drawer-item" @click="close">トップ</NuxtLink>
         <NuxtLink to="/courses" class="drawer-item" @click="close">講座・教室</NuxtLink>
+        <NuxtLink
+          v-if="!isLoggedIn"
+          to="/login"
+          class="drawer-item"
+          @click="close"
+        >
+          ログイン
+        </NuxtLink>
+        <NuxtLink
+          v-else
+          to="/user/attendances"
+          class="drawer-item"
+          @click="close"
+        >
+          マイページ
+        </NuxtLink>
       </div>
     </transition>
   </header>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useAuth } from "@/composables/useAuth"
 const open = ref(false)
+const { user, fetchUser, logout } = useAuth()
+  
+onMounted(() => {
+  fetchUser() // user.valueを復元
+})
+
+const isLoggedIn = computed(() => !!user.value)
 
 function close() {
   open.value = false
