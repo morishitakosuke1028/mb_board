@@ -1,54 +1,58 @@
 <template>
-  <div class="course-detail-page">
-    <h1 class="page-title">{{ course?.course_title }}</h1>
+  <div>
+    <HeaderMain />
+    <div class="course-detail-page">
+      <h1 class="page-title">{{ course?.course_title }}</h1>
 
-    <div v-if="loading" class="loading">読み込み中...</div>
-    <div v-else-if="error" class="error">{{ error }}</div>
+      <div v-if="loading" class="loading">読み込み中...</div>
+      <div v-else-if="error" class="error">{{ error }}</div>
 
-    <div v-else class="course-detail">
+      <div v-else class="course-detail">
 
-      <div class="detail-card">
-        <p><strong>開催日：</strong>{{ formatDate(course.date_time) }}</p>
-        <p><strong>場所：</strong>{{ course.venue }}</p>
+        <div class="detail-card">
+          <p><strong>開催日：</strong>{{ formatDate(course.date_time) }}</p>
+          <p><strong>場所：</strong>{{ course.venue }}</p>
 
-        <p v-if="course.participation_fee">
-          <strong>参加費：</strong>{{ course.participation_fee }}
-        </p>
-
-        <p v-if="course.capacity">
-          <strong>定員：</strong>{{ course.capacity }} 名
-        </p>
-
-        <p v-if="course.instructor">
-          <strong>講師：</strong>{{ course.instructor }}
-        </p>
-
-        <p class="content" v-if="course.content" v-html="course.content"></p>
-
-         <!-- ここから参加ボタン -->
-        <div class="attend-wrapper">
-          <button
-            v-if="isLoggedIn && !isAttending"
-            @click="attend"
-            class="attend-btn"
-          >
-            講座に参加する
-          </button>
-
-          <p v-if="isLoggedIn && isAttending" class="attended-text">
-            ✔ 参加済みです
+          <p v-if="course.participation_fee">
+            <strong>参加費：</strong>{{ course.participation_fee }}
           </p>
 
-          <NuxtLink v-if="!isLoggedIn" to="/login" class="login-link text-blue-500">
-            ログインして参加する
-          </NuxtLink>
-        </div>
-      </div>
+          <p v-if="course.capacity">
+            <strong>定員：</strong>{{ course.capacity }} 名
+          </p>
 
-      <NuxtLink to="/courses" class="back">
-        ← 講座一覧へ戻る
-      </NuxtLink>
+          <p v-if="course.instructor">
+            <strong>講師：</strong>{{ course.instructor }}
+          </p>
+
+          <p class="content" v-if="course.content" v-html="course.content"></p>
+
+          <!-- ここから参加ボタン -->
+          <div class="attend-wrapper">
+            <button
+              v-if="isLoggedIn && !isAttending"
+              @click="attend"
+              class="attend-btn"
+            >
+              講座に参加する
+            </button>
+
+            <p v-if="isLoggedIn && isAttending" class="attended-text">
+              ✔ 参加済みです
+            </p>
+
+            <NuxtLink v-if="!isLoggedIn" to="/login" class="login-link text-blue-500">
+              ログインして参加する
+            </NuxtLink>
+          </div>
+        </div>
+
+        <NuxtLink to="/courses" class="back">
+          ← 講座一覧へ戻る
+        </NuxtLink>
+      </div>
     </div>
+    <FooterMain />
   </div>
 </template>
 
