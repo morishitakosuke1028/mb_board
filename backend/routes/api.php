@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\CourseImportController;
 use App\Http\Controllers\Admin\OwnerController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\User\AttendanceController as UserAttendanceController;
+use App\Http\Controllers\User\ProfileController as UserProfileController;
 use App\Http\Controllers\Public\CourseController as PublicCourseController;
 
 
@@ -31,6 +32,10 @@ Route::prefix('user')->group(function () {
 
         Route::post('/attendances', [UserAttendanceController::class, 'store']);
         Route::get('/attendances/check/{courseId}', [UserAttendanceController::class, 'check']);
+
+        Route::get('/profile/{user}/edit', [UserProfileController::class, 'edit']);
+        Route::put('/profile/{user}', [UserProfileController::class, 'update']);
+        Route::delete('/profile/{user}', [UserProfileController::class, 'destroy']);
     });
 });
 
