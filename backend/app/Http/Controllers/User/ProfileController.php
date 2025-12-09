@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use App\Http\Requests\User\UpdateProfileRequest;
 
 class ProfileController extends Controller
 {
@@ -14,30 +15,31 @@ class ProfileController extends Controller
      */
     public function edit(Request $request)
     {
+        $user = $request->user();
+
         return response()->json([
-            'id'    => $request->user()->id,
-            'name'  => $request->user()->name,
-            'email' => $request->user()->email,
+            'id'      => $user->id,
+            'name'    => $user->name,
+            'kana'    => $user->kana,
+            'zip'     => $user->zip,
+            'address' => $user->address,
+            'tel'     => $user->tel,
+            'email'   => $user->email,
         ]);
     }
 
     /**
      * プロフィール更新
      */
-    public function update(Request $request, User $user)
+    public function update(UpdateProfileRequest $request, User $user)
     {
-        // 認可チェック（他人を更新できないように）
-        if ($user->id !== $request->user()->id) {
-            return response()->json(['message' => '権限がありません'], 403);
-        }
-
-        $validated = $request->validate([
-            'name'     => ['required', 'string', 'max:255'],
-            'email'    => ['required', 'email', 'max:255', 'unique:users,email,' . $user->id],
-            'password' => ['nullable', 'min:6'],
-        ]);
+        $validated = $request->validated();
 
         $user->name = $validated['name'];
+        $user->kana = $validated['kana'];
+        $user->zip = $validated['zip'];
+        $user->address = $validated['address'];
+        $user->tel = $validated['tel'];
         $user->email = $validated['email'];
 
         if (!empty($validated['password'])) {
