@@ -5,7 +5,6 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\User\UpdateProfileRequest;
 
 class ProfileController extends Controller
@@ -17,15 +16,9 @@ class ProfileController extends Controller
     {
         $user = $request->user();
 
-        return response()->json([
-            'id'      => $user->id,
-            'name'    => $user->name,
-            'kana'    => $user->kana,
-            'zip'     => $user->zip,
-            'address' => $user->address,
-            'tel'     => $user->tel,
-            'email'   => $user->email,
-        ]);
+        return response()->json(
+            $user->only(['id', 'name', 'kana', 'zip', 'address', 'tel', 'email'])
+        );
     }
 
     /**
@@ -33,20 +26,7 @@ class ProfileController extends Controller
      */
     public function update(UpdateProfileRequest $request, User $user)
     {
-        $validated = $request->validated();
-
-        $user->name = $validated['name'];
-        $user->kana = $validated['kana'];
-        $user->zip = $validated['zip'];
-        $user->address = $validated['address'];
-        $user->tel = $validated['tel'];
-        $user->email = $validated['email'];
-
-        if (!empty($validated['password'])) {
-            $user->password = Hash::make($validated['password']);
-        }
-
-        $user->save();
+        $user->updateProfile($request->validated());
 
         return response()->json([
             'message' => 'プロフィールを更新しました。',

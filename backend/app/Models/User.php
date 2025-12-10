@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Hash;
 use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject
@@ -68,6 +70,17 @@ class User extends Authenticatable implements JWTSubject
         return $this->belongsToMany(Course::class, 'attendances')
                     ->withPivot('status')
                     ->withTimestamps();
+    }
+
+    public function updateProfile(array $attributes): void
+    {
+        $this->fill(Arr::except($attributes, ['password']));
+
+        if (!empty($attributes['password'])) {
+            $this->password = Hash::make($attributes['password']);
+        }
+
+        $this->save();
     }
 
 }
