@@ -43,7 +43,7 @@ class ProfileController extends Controller
             return response()->json(['message' => '権限がありません'], 403);
         }
 
-        $user->delete(); // ← SoftDelete発動
+        $user->delete();
 
         return response()->json([
             'message' => 'アカウントは退会処理されました',
