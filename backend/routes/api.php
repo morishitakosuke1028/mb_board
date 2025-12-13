@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\CourseController as AdminCourseController;
 use App\Http\Controllers\Admin\CourseImportController;
 use App\Http\Controllers\Admin\OwnerController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\AttendanceController as AdminAttendanceController;
 use App\Http\Controllers\User\AttendanceController as UserAttendanceController;
 use App\Http\Controllers\User\ProfileController as UserProfileController;
 use App\Http\Controllers\Public\CourseController as PublicCourseController;
@@ -47,15 +48,13 @@ Route::prefix('owner')->group(function () {
     });
 });
 
-Route::prefix('admin')->group(function () {
+Route::prefix('admin')->middleware(['auth:admin'])->group(function () {
     Route::post('/login', [AdminAuthController::class, 'login']);
     Route::middleware('auth:admin')->group(function () {
         Route::get('/me', [AdminAuthController::class, 'me']);
         Route::post('/logout', [AdminAuthController::class, 'logout']);
     });
-});
 
-Route::prefix('admin')->middleware(['auth:admin'])->group(function () {
     Route::get('/owners', [OwnerController::class, 'index']);
     Route::delete('/owners/{owner}', [OwnerController::class, 'destroy']);
     Route::get('/users', [UserController::class, 'index']);
@@ -75,4 +74,7 @@ Route::prefix('admin')->middleware(['auth:admin'])->group(function () {
 
     Route::get('/import/sample', [CourseImportController::class, 'downloadSample']);
     Route::post('/import', [CourseImportController::class, 'import']);
+
+    Route::get('/attendances', [AdminAttendanceController::class, 'index']);
+    Route::delete('/attendances/{attendance}', [AdminAttendanceController::class, 'destroy']);
 });
