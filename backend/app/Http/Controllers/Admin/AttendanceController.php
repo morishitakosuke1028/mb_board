@@ -11,11 +11,20 @@ class AttendanceController extends Controller
     public function index(): JsonResponse
     {
         $attendances = Attendance::with(['user', 'course'])
+            ->whereHas('user', function ($query) {
+                $query->whereNull('deleted_at');
+            })
             ->orderByDesc('id')
             ->get();
 
         return response()->json([
             'data' => $attendances,
+            'users' => $attendances->pluck('user')->filter()->unique('id')->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                ];
+            })->values(),
         ]);
     }
 
