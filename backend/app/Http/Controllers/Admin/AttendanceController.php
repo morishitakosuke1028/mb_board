@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
+use App\Models\AttendanceHistory;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class AttendanceController extends Controller
 {
@@ -28,9 +30,17 @@ class AttendanceController extends Controller
         ]);
     }
 
-    public function destroy(int $id): JsonResponse
+    public function destroy(Request $request, int $id): JsonResponse
     {
         $attendance = Attendance::findOrFail($id);
+
+        AttendanceHistory::create([
+            'attendance_id' => $attendance->id,
+            'user_id' => $attendance->user_id,
+            'message' => $request->input('message'),
+            'deleted_at' => now(),
+        ]);
+
         $attendance->delete();
 
         return response()->json([
