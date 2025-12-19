@@ -7,6 +7,7 @@ use App\Models\Admin;
 use App\Models\User;
 use App\Models\Course;
 use App\Models\Attendance;
+use App\Models\AttendanceHistory;
 use PHPUnit\Framework\Attributes\Test;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -73,5 +74,12 @@ class AttendanceControllerTest extends TestCase
             'user_id' => $user->id,
             'message' => 'テスト削除',
         ]);
+
+        $history = AttendanceHistory::first();
+        $this->assertNotNull($history);
+        $this->assertSame($attendance->id, $history->attendance_id);
+        $this->assertSame($user->id, $history->user_id);
+        $this->assertSame('テスト削除', $history->message);
+        $this->assertNotNull($history->deleted_at);
     }
 }
