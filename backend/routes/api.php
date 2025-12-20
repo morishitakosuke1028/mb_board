@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\CourseImportController;
 use App\Http\Controllers\Admin\OwnerController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\AttendanceController as AdminAttendanceController;
+use App\Http\Controllers\Owner\CourseController as OwnerCourseController;
 use App\Http\Controllers\User\AttendanceController as UserAttendanceController;
 use App\Http\Controllers\User\ProfileController as UserProfileController;
 use App\Http\Controllers\Public\CourseController as PublicCourseController;
@@ -45,6 +46,12 @@ Route::prefix('owner')->group(function () {
     Route::middleware('auth:owner')->group(function () {
         Route::get('/me', [OwnerAuthController::class, 'me']);
         Route::post('/logout', [OwnerAuthController::class, 'logout']);
+
+        Route::get('/courses', [OwnerCourseController::class, 'index']);
+        Route::post('/courses', [OwnerCourseController::class, 'store']);
+        Route::get('/courses/{course}/edit', [OwnerCourseController::class, 'edit']);
+        Route::put('/courses/{course}', [OwnerCourseController::class, 'update']);
+        Route::delete('/courses/{course}', [OwnerCourseController::class, 'destroy']);
     });
 });
 
