@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Owner;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Http\Requests\StoreCourseRequest;
+use App\Http\Requests\UpdateCourseRequest;
 use App\Models\Course;
 
 class CourseController extends Controller
@@ -19,27 +21,16 @@ class CourseController extends Controller
         return response()->json(['data' => $courses]);
     }
 
-    public function store(Request $request)
+    public function store(StoreCourseRequest $request)
     {
         $owner = $request->user();
-        $validated = $request->validate([
-            'course_title' => ['required', 'string', 'max:255'],
-            'content' => ['required', 'string'],
-            'date_time' => ['required', 'date'],
-            'participation_fee' => ['nullable', 'string', 'max:255'],
-            'additional_fee' => ['nullable', 'string', 'max:255'],
-            'capacity' => ['nullable', 'string', 'max:255'],
-            'venue' => ['nullable', 'string', 'max:255'],
-            'venue_zip' => ['nullable', 'string', 'max:20'],
-            'venue_address' => ['nullable', 'string', 'max:255'],
-            'tel' => ['nullable', 'string', 'max:20'],
-            'email' => ['nullable', 'email', 'max:255'],
-            'status' => ['nullable', 'string', 'max:50'],
-        ]);
+        $data = $request->validated();
+        if (!empty($data['date_time'])) {
+            $data['date_time'] = str_replace('T', ' ', $data['date_time']);
+        }
+        $data['owner_id'] = $owner->id;
 
-        $validated['owner_id'] = $owner->id;
-
-        $course = Course::create($validated);
+        $course = Course::createWithImage($data, $request->file('course_image'));
 
         return response()->json([
             'message' => '講座を登録しました。',
@@ -54,26 +45,16 @@ class CourseController extends Controller
         return response()->json(['data' => $course]);
     }
 
-    public function update(Request $request, Course $course)
+    public function update(UpdateCourseRequest $request, Course $course)
     {
         $this->authorizeOwner($request, $course);
 
-        $validated = $request->validate([
-            'course_title' => ['required', 'string', 'max:255'],
-            'content' => ['required', 'string'],
-            'date_time' => ['required', 'date'],
-            'participation_fee' => ['nullable', 'string', 'max:255'],
-            'additional_fee' => ['nullable', 'string', 'max:255'],
-            'capacity' => ['nullable', 'string', 'max:255'],
-            'venue' => ['nullable', 'string', 'max:255'],
-            'venue_zip' => ['nullable', 'string', 'max:20'],
-            'venue_address' => ['nullable', 'string', 'max:255'],
-            'tel' => ['nullable', 'string', 'max:20'],
-            'email' => ['nullable', 'email', 'max:255'],
-            'status' => ['nullable', 'string', 'max:50'],
-        ]);
+        $data = $request->validated();
+        if (!empty($data['date_time'])) {
+            $data['date_time'] = str_replace('T', ' ', $data['date_time']);
+        }
 
-        $course->update($validated);
+        $course->updateWithImage($data, $request->file('course_image'));
 
         return response()->json([
             'message' => '講座を更新しました。',
