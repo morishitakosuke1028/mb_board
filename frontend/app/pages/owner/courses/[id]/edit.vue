@@ -15,17 +15,14 @@
           <div class="flex flex-wrap -m-2">
             <div class="p-2 w-1/2">
               <div class="relative">
-                <label for="owner" class="leading-7 text-sm text-gray-600">運営者</label>
-                <select
-                  v-model="form.owner_id"
-                  class="w-full border rounded p-2"
-                  required
+                <label class="leading-7 text-sm text-gray-600">運営者</label>
+                <input
+                  type="text"
+                  :value="ownerName"
+                  class="w-full bg-gray-500 bg-opacity-50 rounded border border-gray-300 text-gray-700 py-1 px-3"
+                  disabled
                 >
-                  <option value="">選択してください</option>
-                  <option v-for="owner in owners" :key="owner.id" :value="owner.id">
-                    {{ owner.name }}
-                  </option>
-                </select>
+                <input type="hidden" v-model="form.owner_id" />
               </div>
             </div>
             <div class="p-2 w-1/2">
@@ -171,11 +168,11 @@ import { useAuth } from '@/composables/useAuth'
 
 const route = useRoute()
 const { $api } = useNuxtApp()
-const { user } = useAuth()
+const { user, fetchUser } = useAuth()
 
 const courseId = route.params.id as string
 const form = ref<any>({})
-const owners = ref<any[]>([])
+const ownerName = ref('')
 const error = ref('')
 const loading = ref(true)
 const isSubmitting = ref(false)
@@ -188,17 +185,22 @@ onMounted(async () => {
     const token = localStorage.getItem('owner_token')
     if (!token) return navigateTo('/login')
 
-    // 運営者一覧取得
-    const ownerRes = await $api.get('/owner/owners', {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-    owners.value = ownerRes.data.data
+    let ownerProfile = user.value
+    if (!ownerProfile) {
+      ownerProfile = await fetchUser()
+    }
+
+    if (!ownerProfile) {
+      return navigateTo('/login')
+    }
 
     // 講座情報取得
     const res = await $api.get(`/owner/courses/${courseId}/edit`, {
       headers: { Authorization: `Bearer ${token}` },
     })
     form.value = res.data.data || {}
+    form.value.owner_id = ownerProfile.id?.toString() ?? ''
+    ownerName.value = ownerProfile.name ?? ''
 
     // 画像URLを保持（プレビュー表示用）
     if (form.value.course_image) {
