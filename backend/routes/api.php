@@ -5,11 +5,12 @@ use App\Http\Controllers\Auth\OwnerAuthController;
 use App\Http\Controllers\Auth\AdminAuthController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CourseController as AdminCourseController;
-use App\Http\Controllers\Admin\CourseImportController;
+use App\Http\Controllers\Admin\CourseImportController as AdminCourseImportController;
 use App\Http\Controllers\Admin\OwnerController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\AttendanceController as AdminAttendanceController;
 use App\Http\Controllers\Owner\CourseController as OwnerCourseController;
+use App\Http\Controllers\Owner\CourseImportController as OwnerCourseImportController;
 use App\Http\Controllers\User\AttendanceController as UserAttendanceController;
 use App\Http\Controllers\User\ProfileController as UserProfileController;
 use App\Http\Controllers\Public\CourseController as PublicCourseController;
@@ -52,6 +53,9 @@ Route::prefix('owner')->group(function () {
         Route::get('/courses/{course}/edit', [OwnerCourseController::class, 'edit']);
         Route::put('/courses/{course}', [OwnerCourseController::class, 'update']);
         Route::delete('/courses/{course}', [OwnerCourseController::class, 'destroy']);
+
+        Route::get('/import/sample', [OwnerCourseImportController::class, 'downloadSample']);
+        Route::post('/import', [OwnerCourseImportController::class, 'import']);
     });
 });
 
@@ -79,8 +83,8 @@ Route::prefix('admin')->group(function () {
         Route::put('/courses/{course}', [AdminCourseController::class, 'update']);
         Route::delete('/courses/{course}', [AdminCourseController::class, 'destroy']);
 
-        Route::get('/import/sample', [CourseImportController::class, 'downloadSample']);
-        Route::post('/import', [CourseImportController::class, 'import']);
+        Route::get('/import/sample', [AdminCourseImportController::class, 'downloadSample']);
+        Route::post('/import', [AdminCourseImportController::class, 'import']);
 
         Route::get('/attendances', [AdminAttendanceController::class, 'index']);
         Route::delete('/attendances/{attendance}', [AdminAttendanceController::class, 'destroy']);
