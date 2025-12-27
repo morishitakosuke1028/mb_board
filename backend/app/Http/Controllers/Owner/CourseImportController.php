@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Owner;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
-use App\Services\Owner\CourseImportService;
-use App\Http\Requests\Owner\CourseImportRequest;
+use App\Services\CourseImportService;
+use App\Http\Requests\CourseImportRequest;
 use App\Models\Course;
 use League\Csv\Reader;
 use League\Csv\Statement;
