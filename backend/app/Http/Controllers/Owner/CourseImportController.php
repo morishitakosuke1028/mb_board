@@ -13,6 +13,8 @@ use Exception;
 
 class CourseImportController extends Controller
 {
+    public function __construct(private CourseImportService $service) {}
+
     public function downloadSample()
     {
         $path = storage_path('app/public/sample_csv/course_sample.csv');
