@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\AttendanceController as AdminAttendanceController;
 use App\Http\Controllers\Owner\CourseController as OwnerCourseController;
 use App\Http\Controllers\Owner\CourseImportController as OwnerCourseImportController;
+use App\Http\Controllers\Owner\ProfileController as OwnerProfileController;
 use App\Http\Controllers\User\AttendanceController as UserAttendanceController;
 use App\Http\Controllers\User\ProfileController as UserProfileController;
 use App\Http\Controllers\Public\CourseController as PublicCourseController;
@@ -56,6 +57,10 @@ Route::prefix('owner')->group(function () {
 
         Route::get('/import/sample', [OwnerCourseImportController::class, 'downloadSample']);
         Route::post('/import', [OwnerCourseImportController::class, 'import']);
+
+        Route::get('/profile/{owner}/edit', [OwnerProfileController::class, 'edit']);
+        Route::put('/profile/{owner}', [OwnerProfileController::class, 'update']);
+        Route::delete('/profile/{owner}', [OwnerProfileController::class, 'destroy']);
     });
 });
 

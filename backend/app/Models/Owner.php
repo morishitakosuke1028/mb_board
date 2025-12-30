@@ -20,6 +20,15 @@ class Owner extends Authenticatable implements JWTSubject
      */
     protected $fillable = [
         'name',
+        'kana',
+        'company_name',
+        'company_kana',
+        'contact_zip',
+        'contact_address',
+        'contact_tel',
+        'secret_zip',
+        'secret_address',
+        'secret_tel',
         'email',
         'password',
     ];
