@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Owner;
 
 use App\Http\Controllers\Controller;
 use App\Models\Owner;
+use App\Http\Requests\Owner\UpdateOwnerRequest;
 use Illuminate\Http\Request;
 
 class ProfileController extends Controller
@@ -36,26 +37,9 @@ class ProfileController extends Controller
     /**
      * プロフィール更新
      */
-    public function update(Request $request, Owner $owner)
+    public function update(UpdateOwnerRequest $request, Owner $owner)
     {
-        if ($owner->id !== $request->user()->id) {
-            return response()->json(['message' => '権限がありません'], 403);
-        }
-
-        $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'kana' => ['required', 'string', 'max:255'],
-            'company_name' => ['nullable', 'string', 'max:255'],
-            'company_kana' => ['nullable', 'string', 'max:255'],
-            'contact_zip' => ['nullable', 'string', 'max:20'],
-            'contact_address' => ['nullable', 'string', 'max:255'],
-            'contact_tel' => ['nullable', 'string', 'max:20', 'unique:owners,contact_tel,' . $owner->id],
-            'secret_zip' => ['required', 'string', 'max:20'],
-            'secret_address' => ['required', 'string', 'max:255'],
-            'secret_tel' => ['required', 'string', 'max:20', 'unique:owners,secret_tel,' . $owner->id],
-            'email' => ['required', 'email', 'max:255', 'unique:owners,email,' . $owner->id],
-            'password' => ['nullable', 'string', 'min:6'],
-        ]);
+        $data = $request->validated();
 
         if (empty($data['password'])) {
             unset($data['password']);
