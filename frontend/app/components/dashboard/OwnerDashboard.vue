@@ -19,9 +19,27 @@
         <h3 class="text-lg font-semibold text-blue-600 mb-1">講座CSV一括登録</h3>
         <p class="text-sm text-gray-600">講座情報の一括登録を行います。</p>
       </NuxtLink>
+      <NuxtLink
+        :to="`/owner/profile/${user?.id}`"
+        class="block bg-white border border-blue-300 rounded-lg p-4 hover:bg-blue-100 transition"
+      >
+        <h3 class="text-lg font-semibold text-blue-600 mb-1">主催者情報管理</h3>
+        <p class="text-sm text-gray-600">主催者情報の更新・退会を行います。</p>
+      </NuxtLink>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { onMounted } from "vue"
+import { useAuth } from "@/composables/useAuth"
+
+const { user, fetchUser } = useAuth()
+
+// F5更新対策 → ユーザー情報の復元
+onMounted(() => {
+  if (!user.value) {
+    fetchUser()
+  }
+})
 </script>
